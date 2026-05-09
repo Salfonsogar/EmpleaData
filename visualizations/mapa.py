@@ -15,13 +15,18 @@ from services.outlier_service import es_outlier
 
 
 # Genera el mapa de Colombia con tasas de empleo por ciudad.
-def figura_mapa(año: int, ciudad_sel: Optional[str] = None) -> go.Figure:
+def figura_mapa(año: int, ciudad_sel: Optional[str] = None, region_filtro: Optional[str] = "Todas") -> go.Figure:
 
     idx = AÑOS.index(año)
     mu_nac, _ = calcular_media_nacional(año)
 
+    ciudades_filtradas = {
+        c: info for c, info in CIUDADES.items()
+        if region_filtro == "Todas" or info["region"] == region_filtro
+    }
+
     lats, lons, nombres, tasas, regiones, textos = [], [], [], [], [], []
-    for ciudad, info in CIUDADES.items():
+    for ciudad, info in ciudades_filtradas.items():
         tasa = EMPLEO_BASE[ciudad][idx]
         sigma = SIGMA_BASE[ciudad]
         outlier = es_outlier(ciudad, año)

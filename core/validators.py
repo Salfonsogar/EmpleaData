@@ -4,7 +4,8 @@ Movido desde utils/ para evitar dependencias circulares.
 """
 
 from typing import Optional
-from data import CIUDADES, AÑOS
+from data import CIUDADES
+from core.constants import AÑOS
 
 def validate_ciudad(ciudad: str) -> Optional[str]:
     """

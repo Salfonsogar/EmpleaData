@@ -8,7 +8,7 @@ def register_extra_callbacks(app):
         Input("slider-año", "value")
     )
     def actualizar_correlacion(año):
-        return figura_correlacion_frontera()
+        return figura_correlacion_frontera(año)
 
     @app.callback(
         Output("contenido-correlacion", "style"),

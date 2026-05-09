@@ -16,8 +16,9 @@ def register_map_callbacks(app):
     @app.callback(
         Output("mapa-colombia", "figure"),
         [Input("slider-año", "value"),
-         Input("dropdown-ciudad", "value")]
+         Input("dropdown-ciudad", "value"),
+         Input("dropdown-region", "value")]
     )
-    def actualizar_mapa(año, ciudad):
-        """Actualiza el mapa según año y ciudad seleccionada."""
-        return figura_mapa(año, ciudad)
+    def actualizar_mapa(año, ciudad, region):
+        """Actualiza el mapa según año, ciudad y región seleccionada."""
+        return figura_mapa(año, ciudad, region)

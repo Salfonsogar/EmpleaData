@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from scipy import stats
 
-from core.constants import COLORES_REGION
+from core.constants import AÑOS, COLORES_REGION
 from core.theme import (
     BORDER_COLOR,
     COLOR_DANGER,
@@ -24,27 +24,28 @@ from data import CIUDADES, EMPLEO_BASE, FRONTERIZAS, MIGRACION_FRONTERIZA, SIGMA
 
 
 # Genera análisis de correlación para ciudades fronteriza
-def figura_correlacion_frontera() -> go.Figure:
+def figura_correlacion_frontera(año: int = 2026) -> go.Figure:
     colores_front = [COLOR_DANGER, COLOR_PRIMARY, COLORES_REGION["Santanderes"], COLORES_REGION["Caribe"], COLOR_SUCCESS]
+    año_idx = AÑOS.index(año)
 
     fig = make_subplots(
         rows=1,
         cols=2,
         subplot_titles=[
-            "σ Laboral vs Migración (2026)",
+            f"σ Laboral vs Migración ({año})",
             "Comparación Kurtosis (Platicúrtica)",
         ],
         horizontal_spacing=0.12,
     )
 
     sigmas_f = [SIGMA_BASE[c] for c in FRONTERIZAS]
-    migr_2026 = [MIGRACION_FRONTERIZA[c][-1] for c in FRONTERIZAS]
+    migr_año = [MIGRACION_FRONTERIZA[c][año_idx] for c in FRONTERIZAS]
 
     # Scatter correlación
     for i, ciudad in enumerate(FRONTERIZAS):
         fig.add_trace(
             go.Scatter(
-                x=[MIGRACION_FRONTERIZA[ciudad][-1]],
+                x=[MIGRACION_FRONTERIZA[ciudad][año_idx]],
                 y=[SIGMA_BASE[ciudad]],
                 mode="markers+text",
                 marker=dict(size=14, color=colores_front[i]),
@@ -59,7 +60,7 @@ def figura_correlacion_frontera() -> go.Figure:
         )
 
     # Correlación
-    corr, pval = stats.pearsonr(migr_2026, sigmas_f)
+    corr, pval = stats.pearsonr(migr_año, sigmas_f)
     fig.add_annotation(
         x=0.28,
         y=0.95,
@@ -75,7 +76,7 @@ def figura_correlacion_frontera() -> go.Figure:
     x = np.linspace(30, 75, 300)
     triangulo = ["Bogotá", "Medellín", "Cali"]
     for ciudad in FRONTERIZAS[:3]:
-        mu = EMPLEO_BASE[ciudad][5]
+        mu = EMPLEO_BASE[ciudad][año_idx]
         sig = SIGMA_BASE[ciudad]
         y = stats.norm.pdf(x, mu, sig)
         fig.add_trace(
@@ -92,7 +93,7 @@ def figura_correlacion_frontera() -> go.Figure:
         )
 
     for ciudad in triangulo:
-        mu = EMPLEO_BASE[ciudad][5]
+        mu = EMPLEO_BASE[ciudad][año_idx]
         sig = SIGMA_BASE[ciudad]
         y = stats.norm.pdf(x, mu, sig)
         fig.add_trace(
