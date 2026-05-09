@@ -1,54 +1,93 @@
-"""
-Componente Navbar (Header) de la aplicación.
-Barra superior con título, subtítulo y badges de fuentes de datos.
-"""
-
-from dash import html
-from core.theme import PAPER_BACKGROUND, BORDER_COLOR, TEXT_ACCENT, COLOR_SUCCESS, COLOR_INFO
+from dash import dcc, html
+from data import CIUDADES
+from core.constants import AÑOS, COLORES_REGION
+from core.theme import CARD_BACKGROUND, BORDER_COLOR, TEXT_ACCENT, TEXT_COLOR, TEXT_MUTED, PAPER_BACKGROUND
 
 
 def create_navbar() -> html.Div:
-    """
-    Crea el navbar principal de la aplicación.
-    
-    Returns:
-        Componente html.Div con el header.
-    """
+    opciones_ciudades = [{"label": c, "value": c} for c in sorted(CIUDADES.keys())]
+
     return html.Div(style={
-        "background": "linear-gradient(135deg, #161B22 0%, #0D1117 60%)",
+        "backgroundColor": CARD_BACKGROUND,
         "borderBottom": f"1px solid {BORDER_COLOR}",
-        "padding": "20px 32px 16px",
+        "padding": "10px 0",
     }, children=[
-        html.Div(style={"display": "flex", "alignItems": "center",
-                        "gap": "16px"}, children=[
-            html.Div("📊", style={"fontSize": "32px"}),
+        html.Div(style={
+            "display": "flex", "alignItems": "center", "gap": "12px",
+        }, children=[
+
+            # ── Título (izquierda) ────────────────────────────────────────
             html.Div([
                 html.H1("ANALIZADOR DE EMPLEABILIDAD NACIONAL",
                         style={"color": TEXT_ACCENT, "margin": 0,
-                               "fontSize": "20px", "letterSpacing": "2px",
-                               "fontWeight": "700"}),
+                               "fontSize": "15px", "letterSpacing": "1px",
+                               "fontWeight": "600"}),
                 html.P("Colombia 2021–2026 · Modelado y Simulación Estocástica",
-                       style={"color": "#8B949E", "margin": 0,
-                              "fontSize": "12px", "letterSpacing": "1px"}),
-            ]),
-            html.Div(style={"marginLeft": "auto", "textAlign": "right"}, children=[
-                html.Span("DANE-GEIH", style={
-                    "background": f"{COLOR_INFO}22",
-                    "color": COLOR_INFO,
-                    "border": f"1px solid {COLOR_INFO}",
-                    "borderRadius": "4px",
-                    "padding": "3px 8px",
-                    "fontSize": "10px",
-                    "marginRight": "6px",
+                       style={"color": TEXT_MUTED, "margin": "1px 0 0",
+                              "fontSize": "10px", "letterSpacing": "0.3px"}),
+            ], style={"flexShrink": 0}),
+
+            # ── Spacer ────────────────────────────────────────────────────
+            html.Div(style={"flex": "1", "minWidth": "16px"}),
+
+            # ── AÑO slider (protagonista) ─────────────────────────────────
+            html.Div([
+                dcc.Slider(
+                    id="slider-año",
+                    min=2021, max=2026, step=1, value=2026,
+                    marks={a: {"label": str(a),
+                               "style": {"color": TEXT_MUTED, "fontSize": "9px"}}
+                           for a in AÑOS},
+                    tooltip={"placement": "top", "always_visible": True},
+                ),
+            ], style={"flex": "0 0 260px"}),
+
+            # ── CIUDAD dropdown ───────────────────────────────────────────
+            html.Div([
+                html.Span("CIUDAD", style={
+                    "color": TEXT_MUTED, "fontSize": "8px",
+                    "letterSpacing": "1px", "display": "block",
+                    "marginBottom": "2px",
                 }),
-                html.Span("Datos Abiertos CO", style={
-                    "background": f"{COLOR_SUCCESS}22",
-                    "color": COLOR_SUCCESS,
-                    "border": f"1px solid {COLOR_SUCCESS}",
-                    "borderRadius": "4px",
-                    "padding": "3px 8px",
-                    "fontSize": "10px",
-                }),
+                dcc.Dropdown(
+                    id="dropdown-ciudad",
+                    options=opciones_ciudades,
+                    value="Bogotá",
+                    clearable=False,
+                    style={
+                        "backgroundColor": PAPER_BACKGROUND,
+                        "color": TEXT_COLOR,
+                        "border": f"1px solid {BORDER_COLOR}",
+                        "width": "160px",
+                        "fontSize": "12px",
+                        "minHeight": "30px",
+                    },
+                ),
             ]),
+
+            # ── REGIÓN dropdown ───────────────────────────────────────────
+            html.Div([
+                html.Span("REGIÓN", style={
+                    "color": TEXT_MUTED, "fontSize": "8px",
+                    "letterSpacing": "1px", "display": "block",
+                    "marginBottom": "2px",
+                }),
+                dcc.Dropdown(
+                    id="dropdown-region",
+                    options=[{"label": "Todas", "value": "Todas"}] +
+                            [{"label": r, "value": r} for r in COLORES_REGION.keys()],
+                    value="Todas",
+                    clearable=False,
+                    style={
+                        "backgroundColor": PAPER_BACKGROUND,
+                        "color": TEXT_COLOR,
+                        "border": f"1px solid {BORDER_COLOR}",
+                        "width": "160px",
+                        "fontSize": "12px",
+                        "minHeight": "30px",
+                    },
+                ),
+            ]),
+
         ]),
     ])

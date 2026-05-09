@@ -1,95 +1,153 @@
-"""
-Layout principal de la aplicación Dash.
-Ensambla todos los componentes UI en la estructura final.
-"""
-
 from dash import html, dcc
-from data import CIUDADES
-from core.theme import PAPER_BACKGROUND, BORDER_COLOR, TEXT_MUTED
+from core.theme import (
+    PAPER_BACKGROUND, CARD_BACKGROUND, BORDER_COLOR,
+    TEXT_MUTED, TEXT_ACCENT,
+)
 from ui.components.navbar import create_navbar
-from ui.components.controls import create_controls
-from ui.components.cards import create_kpi_cards
+
+
+def _section_container(children, style_extra=None):
+    base = {
+        "backgroundColor": CARD_BACKGROUND,
+        "borderRadius": "8px",
+        "border": f"1px solid {BORDER_COLOR}",
+        "overflow": "hidden",
+    }
+    if style_extra:
+        base.update(style_extra)
+    return html.Div(children=children, style=base)
 
 
 def create_layout() -> html.Div:
-    """
-    Crea el layout completo de la aplicación.
-    
-    Returns:
-        Componente html.Div con toda la UI ensamblada.
-    """
     return html.Div(
-        style={"backgroundColor": PAPER_BACKGROUND, "minHeight": "100vh",
-               "fontFamily": "'IBM Plex Mono', 'Courier New', monospace"},
+        style={
+            "backgroundColor": PAPER_BACKGROUND,
+            "minHeight": "100vh",
+            "fontFamily": "'IBM Plex Mono', 'Courier New', monospace",
+        },
         children=[
 
-            # ── HEADER ──────────────────────────────────────────────────────────
-            create_navbar(),
+            html.Div(style={
+                "maxWidth": "1200px",
+                "margin": "0 auto",
+                "padding": "0 24px",
+            }, children=[
 
-            # ── CONTROLES ───────────────────────────────────────────────────────
-            create_controls(),
+                # ── TOP BAR (header + controles integrados) ─────────────
+                create_navbar(),
 
-            # ── TARJETAS KPI (se actualizan por callback) ────────────────────
-            html.Div(id="kpi-cards", style={
-                "display": "flex", "gap": "12px",
-                "padding": "16px 32px",
-                "flexWrap": "wrap",
-            }),
+                # ── FILA 1: MAPA (60%) + KPIs (40%) ────────────────────
+                html.Div(style={
+                    "marginTop": "20px",
+                    "display": "flex", "gap": "20px",
+                    "alignItems": "stretch",
+                }, children=[
 
-            # ── MAPA + GAUSS ────────────────────────────────────────────────────
-            html.Div(style={"display": "flex", "gap": "12px",
-                            "padding": "0 32px 12px",
-                            "alignItems": "flex-start"}, children=[
-                html.Div(
-                    dcc.Graph(id="mapa-colombia", config={"displayModeBar": False}),
-                    style={"flex": "1", "backgroundColor": "#161B22",
-                           "borderRadius": "8px", "border": f"1px solid {BORDER_COLOR}",
-                           "overflow": "hidden"},
-                ),
-                html.Div(style={"flex": "0 0 420px", "display": "flex",
-                                "flexDirection": "column", "gap": "12px"}, children=[
-                    html.Div(
-                        dcc.Graph(id="grafica-gauss", config={"displayModeBar": False}),
-                        style={"backgroundColor": "#161B22", "borderRadius": "8px",
-                               "border": f"1px solid {BORDER_COLOR}"},
-                    ),
-                    html.Div(
-                        dcc.Graph(id="grafica-tendencia",
+                    _section_container(
+                        dcc.Graph(id="mapa-colombia",
                                   config={"displayModeBar": False}),
-                        style={"backgroundColor": "#161B22", "borderRadius": "8px",
-                               "border": f"1px solid {BORDER_COLOR}"},
+                        style_extra={"flex": "3"},
+                    ),
+
+                    _section_container(
+                        html.Div(id="kpi-cards", style={"height": "100%"}),
+                        style_extra={"flex": "2", "height": "440px"},
                     ),
                 ]),
-            ]),
 
-            # ── RANKING + CORRELACIÓN ───────────────────────────────────────────
-            html.Div(style={"display": "flex", "gap": "12px",
-                            "padding": "0 32px 24px",
-                            "alignItems": "flex-start"}, children=[
-                html.Div(
-                    dcc.Graph(id="grafica-ranking", config={"displayModeBar": False}),
-                    style={"flex": "1", "backgroundColor": "#161B22",
-                           "borderRadius": "8px", "border": f"1px solid {BORDER_COLOR}"},
-                ),
-                html.Div(
-                    dcc.Graph(id="grafica-correlacion",
-                              config={"displayModeBar": False}),
-                    style={"flex": "2", "backgroundColor": "#161B22",
-                           "borderRadius": "8px",
-                           "border": f"1px solid {BORDER_COLOR}"},
-                ),
-            ]),
+                # ── FILA 2: RANKING (full width, standalone) ─────────────
+                html.Div(style={
+                    "marginTop": "20px",
+                }, children=[
+                    _section_container(
+                        dcc.Graph(id="grafica-ranking",
+                                  config={"displayModeBar": False}),
+                    ),
+                    html.Span(
+                        "[Top 5]",
+                        id="toggle-ranking",
+                        n_clicks=0,
+                        style={
+                            "color": TEXT_MUTED,
+                            "fontSize": "10px",
+                            "cursor": "pointer",
+                            "textAlign": "right",
+                            "padding": "4px 4px 0",
+                            "userSelect": "none",
+                            "display": "block",
+                        },
+                    ),
+                ]),
 
-            # ── FOOTER ──────────────────────────────────────────────────────────
-            html.Div(style={
-                "borderTop": f"1px solid {BORDER_COLOR}",
-                "padding": "12px 32px",
-                "display": "flex", "justifyContent": "space-between",
-            }, children=[
-                html.Span("Modelado y Simulación · Docente: Andrés Perpiñán Reyes",
-                          style={"color": TEXT_MUTED, "fontSize": "11px"}),
-                html.Span("Fuentes: DANE-GEIH · Datos Abiertos Colombia · SISRPO-MinSalud",
-                          style={"color": TEXT_MUTED, "fontSize": "11px"}),
+                # ── FILA 3: GAUSS (2/3) + TREND (1/3) ─────────────────
+                html.Div(style={
+                    "marginTop": "20px",
+                    "display": "flex", "gap": "16px",
+                    "alignItems": "stretch",
+                }, children=[
+
+                    _section_container(
+                        dcc.Graph(id="grafica-gauss",
+                                  config={"displayModeBar": False}),
+                        style_extra={"flex": "2"},
+                    ),
+
+                    _section_container(
+                        dcc.Graph(id="grafica-tendencia",
+                                  config={"displayModeBar": False}),
+                        style_extra={"flex": "1"},
+                    ),
+                ]),
+
+                # ── FILA 4: CORRELACIÓN FRONTERIZA (colapsable) ─────────
+                html.Div(style={
+                    "marginTop": "20px",
+                }, children=[
+
+                    html.Div(
+                        "▶ Ver an\u00e1lisis de correlaci\u00f3n fronteriza (+0.5)",
+                        id="toggle-correlacion",
+                        n_clicks=0,
+                        style={
+                            "color": TEXT_ACCENT,
+                            "fontSize": "11px",
+                            "letterSpacing": "0.5px",
+                            "cursor": "pointer",
+                            "userSelect": "none",
+                            "padding": "8px 12px",
+                            "backgroundColor": CARD_BACKGROUND,
+                            "borderRadius": "6px",
+                            "border": f"1px solid {BORDER_COLOR}",
+                            "display": "inline-block",
+                        },
+                    ),
+
+                    html.Div(
+                        id="contenido-correlacion",
+                        style={"display": "none", "marginTop": "12px"},
+                        children=[
+                            _section_container(
+                                dcc.Graph(id="grafica-correlacion",
+                                          config={"displayModeBar": False}),
+                            ),
+                        ],
+                    ),
+                ]),
+
+                # ── FOOTER ─────────────────────────────────────────────
+                html.Div(style={
+                    "borderTop": f"1px solid {BORDER_COLOR}",
+                    "padding": "16px 0",
+                    "marginTop": "32px",
+                    "textAlign": "center",
+                }, children=[
+                    html.Span(
+                        "Modelado y Simulación · Docente: Andrés Perpiñán Reyes · "
+                        "Fuentes: DANE-GEIH / Datos Abiertos Colombia / SISRPO-MinSalud",
+                        style={"color": TEXT_MUTED, "fontSize": "10px"},
+                    ),
+                ]),
+
             ]),
         ]
     )

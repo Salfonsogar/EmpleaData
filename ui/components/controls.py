@@ -10,24 +10,17 @@ from core.theme import PAPER_BACKGROUND, BORDER_COLOR, TEXT_COLOR, TEXT_MUTED
 
 
 def create_controls() -> html.Div:
-    """
-    Crea los controles de la aplicación (slider de año, dropdowns).
-    
-    Returns:
-        Componente html.Div con los controles.
-    """
     opciones_ciudades = [{"label": c, "value": c} for c in sorted(CIUDADES.keys())]
-    
+
     return html.Div(style={
-        "display": "flex", "gap": "20px", "padding": "16px 32px",
+        "display": "flex", "gap": "16px", "padding": "16px 0",
         "alignItems": "center", "flexWrap": "wrap",
-        "backgroundColor": "#161B22",
         "borderBottom": f"1px solid {BORDER_COLOR}",
     }, children=[
         html.Div([
             html.Label("AÑO", style={"color": TEXT_MUTED, "fontSize": "10px",
-                                       "letterSpacing": "1px", "display": "block",
-                                       "marginBottom": "4px"}),
+                                     "letterSpacing": "1px", "display": "block",
+                                     "marginBottom": "4px"}),
             dcc.Slider(
                 id="slider-año",
                 min=2021, max=2026, step=1,
@@ -37,12 +30,12 @@ def create_controls() -> html.Div:
                        for a in AÑOS},
                 tooltip={"placement": "bottom", "always_visible": False},
             ),
-        ], style={"flex": "0 0 360px"}),
+        ], style={"flex": "0 0 320px"}),
 
         html.Div([
             html.Label("CIUDAD", style={"color": TEXT_MUTED, "fontSize": "10px",
-                                          "letterSpacing": "1px", "display": "block",
-                                          "marginBottom": "4px"}),
+                                        "letterSpacing": "1px", "display": "block",
+                                        "marginBottom": "4px"}),
             dcc.Dropdown(
                 id="dropdown-ciudad",
                 options=opciones_ciudades,
@@ -55,8 +48,8 @@ def create_controls() -> html.Div:
 
         html.Div([
             html.Label("REGIÓN", style={"color": TEXT_MUTED, "fontSize": "10px",
-                                          "letterSpacing": "1px", "display": "block",
-                                          "marginBottom": "4px"}),
+                                        "letterSpacing": "1px", "display": "block",
+                                        "marginBottom": "4px"}),
             dcc.Dropdown(
                 id="dropdown-region",
                 options=[{"label": "Todas", "value": "Todas"}] +
@@ -65,7 +58,7 @@ def create_controls() -> html.Div:
                 value="Todas",
                 clearable=False,
                 style={"backgroundColor": PAPER_BACKGROUND, "color": TEXT_COLOR,
-                       "border": f"1px solid {BORDER_COLOR}", "width": "220px"},
+                       "border": f"1px solid {BORDER_COLOR}", "width": "200px"},
             ),
         ]),
     ])
