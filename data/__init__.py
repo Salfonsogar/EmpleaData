@@ -1,12 +1,11 @@
-"""
-Facade para el módulo de datos.
-Re-exporta todas las constantes para facilitar imports centralizados.
-"""
-
 from .ciudades import CIUDADES
-from .empleo_base import EMPLEO_BASE, SIGMA_BASE
 from .sectores import SECTOR_DOMINANTE
 from .migracion import MIGRACION_FRONTERIZA, FRONTERIZAS
+
+from .loader import get_empleo_base, get_sigma_base, is_using_real_data, get_validation_issues
+
+EMPLEO_BASE = get_empleo_base()
+SIGMA_BASE = get_sigma_base()
 
 __all__ = [
     'CIUDADES',
@@ -15,4 +14,6 @@ __all__ = [
     'SECTOR_DOMINANTE',
     'MIGRACION_FRONTERIZA',
     'FRONTERIZAS',
+    'is_using_real_data',
+    'get_validation_issues',
 ]

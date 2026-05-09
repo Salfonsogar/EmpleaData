@@ -28,8 +28,13 @@ def es_outlier(ciudad: str, año: int, n_sigma: float = 2.0) -> bool:
     """
     idx = AÑOS.index(año)
     mu_nac, _ = calcular_media_nacional(año)
-    sigma_nac = np.std([EMPLEO_BASE[c][idx] for c in CIUDADES])
+    vals = [EMPLEO_BASE[c][idx] for c in CIUDADES if EMPLEO_BASE[c][idx] is not None]
+    if not vals:
+        return False
+    sigma_nac = np.std(vals)
     val = EMPLEO_BASE[ciudad][idx]
+    if val is None:
+        return False
     return bool(abs(val - mu_nac) > n_sigma * sigma_nac)
 
 

@@ -1,47 +1,55 @@
-"""
-Loader para datos externos (CSV/Excel) futuros.
-Preparado para cargar datos reales del DANE-GEIH.
-"""
-
-import pandas as pd
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from core.constants import AÑOS
+from data.empleo_base import EMPLEO_BASE as EMPLEO_BASE_FALLBACK, SIGMA_BASE as SIGMA_BASE_FALLBACK
+from data.etl_pipeline import run_pipeline
+
+DATASET_PATH = "data/datasets/2026/anex-mar2026.xlsx"
+
+_EMPLEO_BASE: Dict[str, List[float]] = {}
+_SIGMA_BASE: Dict[str, float] = {}
+_USING_REAL_DATA = False
+_VALIDATION_ISSUES: Dict[str, List[str]] = {}
 
 
-def load_dane_geih(path: str) -> Dict[str, List[float]]:
-    """
-    Carga datos del DANE-GEIH desde un archivo CSV/Excel.
-    
-    El archivo debe tener columnas: ciudad, 2021, 2022, 2023, 2024, 2025, 2026
-    
-    Args:
-        path: Ruta al archivo CSV o Excel.
-        
-    Returns:
-        Dict con formato compatible con EMPLEO_BASE.
-        
-    Raises:
-        FileNotFoundError: Si el archivo no existe.
-        ValueError: Si el formato del archivo es incorrecto.
-    """
-    if path.endswith('.csv'):
-        df = pd.read_csv(path)
-    elif path.endswith(('.xls', '.xlsx')):
-        df = pd.read_excel(path)
-    else:
-        raise ValueError(f"Formato de archivo no soportado: {path}")
-    
-    # Validar columnas requeridas
-    required_cols = ['ciudad'] + [str(a) for a in AÑOS]
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Columnas faltantes: {missing}")
-    
-    # Convertir a formato EMPLEO_BASE
-    result = {}
-    for _, row in df.iterrows():
-        ciudad = row['ciudad']
-        valores = [float(row[str(a)]) for a in AÑOS]
-        result[ciudad] = valores
-    
-    return result
+def _load_real() -> bool:
+    global _EMPLEO_BASE, _SIGMA_BASE, _VALIDATION_ISSUES, _USING_REAL_DATA
+    try:
+        empleo, issues, sigmas = run_pipeline(DATASET_PATH)
+        missing_years = sum(1 for v in empleo.values() for val in v if val is None)
+        if missing_years > len(empleo) * 2:
+            return False
+
+        _EMPLEO_BASE = empleo
+        _SIGMA_BASE = sigmas
+        _VALIDATION_ISSUES = issues
+        _USING_REAL_DATA = True
+        return True
+    except (FileNotFoundError, ValueError, KeyError, Exception):
+        return False
+
+
+def _load_fallback() -> None:
+    global _EMPLEO_BASE, _SIGMA_BASE, _USING_REAL_DATA
+    _EMPLEO_BASE = dict(EMPLEO_BASE_FALLBACK)
+    _SIGMA_BASE = dict(SIGMA_BASE_FALLBACK)
+    _USING_REAL_DATA = False
+
+
+if not _load_real():
+    _load_fallback()
+
+
+def get_empleo_base() -> Dict[str, List[float]]:
+    return _EMPLEO_BASE
+
+
+def get_sigma_base() -> Dict[str, float]:
+    return _SIGMA_BASE
+
+
+def is_using_real_data() -> bool:
+    return _USING_REAL_DATA
+
+
+def get_validation_issues() -> Dict[str, List[str]]:
+    return _VALIDATION_ISSUES
