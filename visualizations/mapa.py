@@ -5,7 +5,10 @@ from typing import Optional
 import plotly.graph_objects as go
 
 from core.constants import AÑOS, COLORES_REGION
-from core.theme import BORDER_COLOR, PAPER_BACKGROUND, TEXT_COLOR
+from core.theme import (
+    BORDER_COLOR, HIGHLIGHT_COLOR, MAP_CENTER_LAT, MAP_CENTER_LON,
+    MAP_STYLE, MAP_ZOOM, PAPER_BACKGROUND, TEXT_COLOR,
+)
 from data import CIUDADES, EMPLEO_BASE, SECTOR_DOMINANTE, SIGMA_BASE
 from services.estadisticas_service import calcular_media_nacional
 from services.outlier_service import es_outlier
@@ -51,7 +54,7 @@ def figura_mapa(año: int, ciudad_sel: Optional[str] = None) -> go.Figure:
                 ),
                 text=[nombres[i] for i in range(len(nombres)) if mask[i]],
                 textposition="top center",
-                textfont=dict(color="white", size=10),
+                textfont=dict(color=TEXT_COLOR, size=10),
                 hovertext=[textos[i] for i in range(len(textos)) if mask[i]],
                 hoverinfo="text",
                 name=region,
@@ -66,7 +69,7 @@ def figura_mapa(año: int, ciudad_sel: Optional[str] = None) -> go.Figure:
                 lat=[info["lat"]],
                 lon=[info["lon"]],
                 mode="markers",
-                marker=dict(size=22, color="#FFD700", opacity=1.0, symbol="circle"),
+                marker=dict(size=22, color=HIGHLIGHT_COLOR, opacity=1.0, symbol="circle"),
                 hoverinfo="skip",
                 name="Seleccionada",
                 showlegend=False,
@@ -75,15 +78,15 @@ def figura_mapa(año: int, ciudad_sel: Optional[str] = None) -> go.Figure:
 
     fig.update_layout(
         mapbox=dict(
-            style="carto-darkmatter",
-            center=dict(lat=4.5709, lon=-74.2973),
-            zoom=4.5,
+            style=MAP_STYLE,
+            center=dict(lat=MAP_CENTER_LAT, lon=MAP_CENTER_LON),
+            zoom=MAP_ZOOM,
         ),
         margin=dict(l=0, r=0, t=0, b=0),
         paper_bgcolor=PAPER_BACKGROUND,
         plot_bgcolor=PAPER_BACKGROUND,
         legend=dict(
-            bgcolor=f"rgba(13,17,23,0.85)",
+            bgcolor="rgba(255,255,255,0.9)",
             font=dict(color=TEXT_COLOR, size=11),
             bordercolor=BORDER_COLOR,
             borderwidth=1,

@@ -1,7 +1,7 @@
 from dash import html, dcc
 from core.theme import (
     PAPER_BACKGROUND, CARD_BACKGROUND, BORDER_COLOR,
-    TEXT_MUTED, TEXT_ACCENT,
+    TEXT_MUTED, COLOR_PRIMARY,
 )
 from ui.components.navbar import create_navbar
 
@@ -109,7 +109,7 @@ def create_layout() -> html.Div:
                         id="toggle-correlacion",
                         n_clicks=0,
                         style={
-                            "color": TEXT_ACCENT,
+                            "color": COLOR_PRIMARY,
                             "fontSize": "11px",
                             "letterSpacing": "0.5px",
                             "cursor": "pointer",

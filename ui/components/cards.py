@@ -3,7 +3,7 @@ from core.theme import CARD_BACKGROUND, BORDER_COLOR, TEXT_COLOR, TEXT_MUTED
 
 
 def kpi_card(titulo: str, valor: str, subtexto: str,
-             color: str = "#58A6FF") -> html.Div:
+             color: str = "#1B4FCC") -> html.Div:
     return html.Div(style={
         "backgroundColor": CARD_BACKGROUND,
         "border": f"1px solid {color}22",
@@ -26,18 +26,18 @@ def kpi_card(titulo: str, valor: str, subtexto: str,
 def create_kpi_cards(ciudad: str, año: int, media: float, mediana: float,
                      std: float, sector: str, mu_nac: float,
                      is_outlier: bool) -> html.Div:
-    from core.theme import COLOR_DANGER, COLOR_SUCCESS, COLOR_PURPLE, COLOR_WARNING, COLOR_INFO
+    from core.theme import COLOR_DANGER, COLOR_PRIMARY, COLOR_SUCCESS
 
     color_outlier = COLOR_DANGER if is_outlier else COLOR_SUCCESS
     outlier_label = "OUTLIER >2σ" if is_outlier else "NORMAL ±2σ"
 
     cards = [
         kpi_card("TASA EMPLEO", f"{media:.1f}%",
-                 f"{ciudad} · {año}", COLOR_INFO),
+                 f"{ciudad} · {año}", COLOR_PRIMARY),
         kpi_card("MEDIANA",     f"{mediana:.1f}%",
-                 "Brecha desigualdad", COLOR_PURPLE),
+                 "Brecha desigualdad", COLOR_PRIMARY),
         kpi_card("DESV. STD",   f"±{std:.2f}",
-                 "Volatilidad laboral", COLOR_WARNING),
+                 "Volatilidad laboral", TEXT_COLOR),
         kpi_card("SECTOR",      sector[:14],
                  "Mayor contratación", COLOR_SUCCESS),
         kpi_card("MED. NAC.",   f"{mu_nac:.1f}%",

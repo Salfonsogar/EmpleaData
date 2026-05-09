@@ -12,18 +12,20 @@ from core.constants import COLORES_REGION
 from core.theme import (
     BORDER_COLOR,
     COLOR_DANGER,
+    COLOR_PRIMARY,
     COLOR_SUCCESS,
-    COLOR_WARNING,
+    GRID_COLOR,
     PAPER_BACKGROUND,
     PLOT_BACKGROUND,
     TEXT_COLOR,
+    TEXT_MUTED,
 )
 from data import CIUDADES, EMPLEO_BASE, FRONTERIZAS, MIGRACION_FRONTERIZA, SIGMA_BASE
 
 
 # Genera análisis de correlación para ciudades fronteriza
 def figura_correlacion_frontera() -> go.Figure:
-    colores_front = [COLOR_DANGER, COLOR_WARNING, "#7B2D8B", "#00B4D8", COLOR_SUCCESS]
+    colores_front = [COLOR_DANGER, COLOR_PRIMARY, COLORES_REGION["Santanderes"], COLORES_REGION["Caribe"], COLOR_SUCCESS]
 
     fig = make_subplots(
         rows=1,
@@ -65,8 +67,8 @@ def figura_correlacion_frontera() -> go.Figure:
         yref="paper",
         text=f"r = {corr:.3f} | p = {pval:.3f}",
         showarrow=False,
-        font=dict(color=COLOR_WARNING, size=12),
-        bgcolor=f"rgba(13,17,23,0.8)",
+        font=dict(color=COLOR_PRIMARY, size=12),
+        bgcolor="rgba(255,255,255,0.9)",
     )
 
     # Comparación kurtosis (curvas normales)
@@ -98,7 +100,7 @@ def figura_correlacion_frontera() -> go.Figure:
                 x=x,
                 y=y,
                 mode="lines",
-                line=dict(color=COLOR_WARNING, width=2),
+                line=dict(color=COLORES_REGION["Triángulo de Oro"], width=2),
                 name=f"{ciudad} (triángulo)",
                 showlegend=(ciudad == triangulo[0]),
             ),
@@ -111,7 +113,7 @@ def figura_correlacion_frontera() -> go.Figure:
         plot_bgcolor=PLOT_BACKGROUND,
         font=dict(color=TEXT_COLOR),
         legend=dict(
-            bgcolor=f"rgba(13,17,23,0.8)",
+            bgcolor="rgba(255,255,255,0.9)",
             bordercolor=BORDER_COLOR,
             borderwidth=1,
             font=dict(size=9),
@@ -123,6 +125,6 @@ def figura_correlacion_frontera() -> go.Figure:
             font=dict(color=TEXT_COLOR, size=13),
         ),
     )
-    fig.update_xaxes(color="#8B949E", gridcolor="#21262D")
-    fig.update_yaxes(color="#8B949E", gridcolor="#21262D")
+    fig.update_xaxes(color=TEXT_MUTED, gridcolor=GRID_COLOR)
+    fig.update_yaxes(color=TEXT_MUTED, gridcolor=GRID_COLOR)
     return fig

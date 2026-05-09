@@ -9,10 +9,12 @@ import plotly.graph_objects as go
 from core.constants import AÑOS, COLORES_REGION
 from core.theme import (
     BORDER_COLOR,
-    COLOR_WARNING,
+    GRID_COLOR,
+    NATIONAL_LINE,
     PAPER_BACKGROUND,
     PLOT_BACKGROUND,
     TEXT_COLOR,
+    TEXT_MUTED,
 )
 from data import CIUDADES, EMPLEO_BASE
 from services.estadisticas_service import calcular_media_nacional
@@ -43,7 +45,7 @@ def figura_ranking(año: int, top_n: Optional[int] = None) -> go.Figure:
             marker=dict(
                 color=colores_ord,
                 opacity=0.85,
-                line=dict(color="rgba(255,255,255,0.15)", width=0.5),
+                line=dict(color="rgba(0,0,0,0.08)", width=0.5),
             ),
             text=[f"{t:.1f}%" for t in tasas_ord],
             textposition="outside",
@@ -53,9 +55,9 @@ def figura_ranking(año: int, top_n: Optional[int] = None) -> go.Figure:
     )
     fig.add_vline(
         x=mu_nac,
-        line=dict(color=COLOR_WARNING, dash="dash", width=1.5),
+        line=dict(color=NATIONAL_LINE, dash="dash", width=1.5),
         annotation_text=f"Nacional {mu_nac:.1f}%",
-        annotation_font=dict(color=COLOR_WARNING, size=10),
+        annotation_font=dict(color=NATIONAL_LINE, size=10),
     )
 
     fig.update_layout(
@@ -63,9 +65,9 @@ def figura_ranking(año: int, top_n: Optional[int] = None) -> go.Figure:
             text=f"Ranking Empleabilidad {año}", font=dict(color=TEXT_COLOR, size=13)
         ),
         xaxis=dict(
-            range=[30, 75], color="#8B949E", gridcolor="#21262D", title="Tasa (%)"
+            range=[30, 75], color=TEXT_MUTED, gridcolor=GRID_COLOR, title="Tasa (%)"
         ),
-        yaxis=dict(color="#8B949E"),
+        yaxis=dict(color=TEXT_MUTED),
         paper_bgcolor=PAPER_BACKGROUND,
         plot_bgcolor=PLOT_BACKGROUND,
         font=dict(color=TEXT_COLOR),

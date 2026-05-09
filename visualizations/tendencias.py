@@ -9,10 +9,13 @@ import plotly.graph_objects as go
 from core.constants import AÑOS, COLORES_REGION
 from core.theme import (
     BORDER_COLOR,
-    COLOR_WARNING,
+    GRID_COLOR,
+    NATIONAL_LINE,
     PAPER_BACKGROUND,
     PLOT_BACKGROUND,
     TEXT_COLOR,
+    TEXT_MUTED,
+    hex_to_rgba,
 )
 from data import CIUDADES, EMPLEO_BASE, SIGMA_BASE
 
@@ -31,7 +34,7 @@ def figura_tendencia(ciudad: str) -> go.Figure:
             x=AÑOS + AÑOS[::-1],
             y=[t + sigmas for t in tasas] + [t - sigmas for t in tasas][::-1],
             fill="toself",
-            fillcolor=f"rgba{tuple(list(bytes.fromhex(color[1:])) + [40])}",
+            fillcolor=hex_to_rgba(color, 0x18),
             line=dict(color="rgba(0,0,0,0)"),
             name="±1σ",
             hoverinfo="skip",
@@ -44,7 +47,7 @@ def figura_tendencia(ciudad: str) -> go.Figure:
             y=tasas,
             mode="lines+markers",
             line=dict(color=color, width=3),
-            marker=dict(size=9, color=color, line=dict(color="white", width=1.5)),
+            marker=dict(size=9, color=color, line=dict(color=TEXT_COLOR, width=1.5)),
             name=ciudad,
             text=[f"{t:.1f}%" for t in tasas],
             textposition="top center",
@@ -61,7 +64,7 @@ def figura_tendencia(ciudad: str) -> go.Figure:
             x=AÑOS,
             y=nac,
             mode="lines",
-            line=dict(color=COLOR_WARNING, width=1.5, dash="dot"),
+            line=dict(color=NATIONAL_LINE, width=1.5, dash="dot"),
             name="Media Nacional",
         )
     )
@@ -71,13 +74,13 @@ def figura_tendencia(ciudad: str) -> go.Figure:
             text=f"Tendencia Empleabilidad — {ciudad} (2021-2026)",
             font=dict(color=TEXT_COLOR, size=13),
         ),
-        xaxis=dict(tickvals=AÑOS, color="#8B949E", gridcolor="#21262D"),
-        yaxis=dict(title="%", color="#8B949E", gridcolor="#21262D"),
+        xaxis=dict(tickvals=AÑOS, color=TEXT_MUTED, gridcolor=GRID_COLOR),
+        yaxis=dict(title="%", color=TEXT_MUTED, gridcolor=GRID_COLOR),
         paper_bgcolor=PAPER_BACKGROUND,
         plot_bgcolor=PLOT_BACKGROUND,
         font=dict(color=TEXT_COLOR),
         legend=dict(
-            bgcolor=f"rgba(13,17,23,0.85)",
+            bgcolor="rgba(255,255,255,0.9)",
             bordercolor=BORDER_COLOR,
             borderwidth=1,
             font=dict(size=10),

@@ -12,9 +12,14 @@ from core.theme import (
     BORDER_COLOR,
     COLOR_DANGER,
     COLOR_SUCCESS,
+    GRID_COLOR,
+    NATIONAL_FILL,
+    NATIONAL_LINE,
     PAPER_BACKGROUND,
     PLOT_BACKGROUND,
     TEXT_COLOR,
+    TEXT_MUTED,
+    hex_to_rgba,
 )
 from data import CIUDADES, EMPLEO_BASE, SIGMA_BASE
 from services.estadisticas_service import calcular_media_nacional
@@ -45,8 +50,8 @@ def figura_gauss(ciudad: str, año: int) -> go.Figure:
             x=x,
             y=y_nac,
             fill="tozeroy",
-            fillcolor="rgba(244,162,97,0.15)",  # #F4A261 with alpha
-            line=dict(color="#F4A261", width=2, dash="dash"),
+            fillcolor=NATIONAL_FILL,
+            line=dict(color=NATIONAL_LINE, width=2, dash="dash"),
             name=f"Nacional μ={mu_nac:.1f}% σ={sigma_nac:.2f}",
         )
     )
@@ -57,7 +62,7 @@ def figura_gauss(ciudad: str, año: int) -> go.Figure:
             x=x,
             y=y_ciudad,
             fill="tozeroy",
-            fillcolor=f"rgba{tuple(list(bytes.fromhex(color_sombra[1:])) + [51])}",
+            fillcolor=hex_to_rgba(color_sombra, 0x18),
             line=dict(color=color_sombra, width=2.5),
             name=f"{ciudad} μ={mu_ciudad:.1f}% σ={sigma_ciudad}",
         )
@@ -68,9 +73,9 @@ def figura_gauss(ciudad: str, año: int) -> go.Figure:
         x_lim = mu_nac + sgn * sigma_nac
         fig.add_vline(
             x=x_lim,
-            line=dict(color="#8B949E", dash="dot", width=1.2),
+            line=dict(color=TEXT_MUTED, dash="dot", width=1.2),
             annotation_text=lbl,
-            annotation_font=dict(color="#8B949E", size=10),
+            annotation_font=dict(color=TEXT_MUTED, size=10),
         )
 
     # Media ciudad
@@ -95,14 +100,14 @@ def figura_gauss(ciudad: str, año: int) -> go.Figure:
             font=dict(color=TEXT_COLOR, size=16),
         ),
         xaxis=dict(
-            title="Tasa de Empleabilidad (%)", color="#8B949E", gridcolor="#21262D"
+            title="Tasa de Empleabilidad (%)", color=TEXT_MUTED, gridcolor=GRID_COLOR
         ),
-        yaxis=dict(title="Densidad", color="#8B949E", gridcolor="#21262D"),
+        yaxis=dict(title="Densidad", color=TEXT_MUTED, gridcolor=GRID_COLOR),
         paper_bgcolor=PAPER_BACKGROUND,
         plot_bgcolor=PLOT_BACKGROUND,
         font=dict(color=TEXT_COLOR),
         legend=dict(
-            bgcolor=f"rgba(13,17,23,0.85)",
+            bgcolor="rgba(255,255,255,0.9)",
             bordercolor=BORDER_COLOR,
             borderwidth=1,
             font=dict(size=11),

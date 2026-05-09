@@ -1,14 +1,14 @@
 from dash import dcc, html
 from data import CIUDADES
 from core.constants import AÑOS, COLORES_REGION
-from core.theme import CARD_BACKGROUND, BORDER_COLOR, TEXT_ACCENT, TEXT_COLOR, TEXT_MUTED, PAPER_BACKGROUND
+from core.theme import BORDER_COLOR, COLOR_PRIMARY, CONTROLS_BACKGROUND, PAPER_BACKGROUND, TEXT_COLOR, TEXT_MUTED
 
 
 def create_navbar() -> html.Div:
     opciones_ciudades = [{"label": c, "value": c} for c in sorted(CIUDADES.keys())]
 
     return html.Div(style={
-        "backgroundColor": CARD_BACKGROUND,
+        "backgroundColor": CONTROLS_BACKGROUND,
         "borderBottom": f"1px solid {BORDER_COLOR}",
         "padding": "10px 0",
     }, children=[
@@ -19,7 +19,7 @@ def create_navbar() -> html.Div:
             # ── Título (izquierda) ────────────────────────────────────────
             html.Div([
                 html.H1("ANALIZADOR DE EMPLEABILIDAD NACIONAL",
-                        style={"color": TEXT_ACCENT, "margin": 0,
+                        style={"color": COLOR_PRIMARY, "margin": 0,
                                "fontSize": "15px", "letterSpacing": "1px",
                                "fontWeight": "600"}),
                 html.P("Colombia 2021–2026 · Modelado y Simulación Estocástica",
