@@ -24,11 +24,8 @@ from services.estadisticas_service import calcular_media_nacional
 def figura_ranking(año: int, top_n: Optional[int] = None) -> go.Figure:
 
     idx = AÑOS.index(año)
-    datos = sorted(
-        [(c, EMPLEO_BASE[c][idx], CIUDADES[c]["region"]) for c in CIUDADES],
-        key=lambda x: x[1],
-        reverse=True,
-    )
+    datos = [(c, EMPLEO_BASE[c][idx], CIUDADES[c]["region"]) for c in CIUDADES if EMPLEO_BASE[c][idx] is not None]
+    datos = sorted(datos, key=lambda x: x[1], reverse=True)
     if top_n:
         datos = datos[:top_n]
     ciudades_ord = [d[0] for d in datos]

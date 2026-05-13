@@ -21,4 +21,4 @@ def register_map_callbacks(app):
     )
     def actualizar_mapa(año, ciudad, region):
         """Actualiza el mapa según año, ciudad y región seleccionada."""
-        return figura_mapa(año, ciudad, region)
+        return figura_mapa(año, ciudad, region).to_dict()

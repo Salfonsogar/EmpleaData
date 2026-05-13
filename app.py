@@ -1,12 +1,15 @@
 """
-=============================================================================
+================================================================================
 ANALIZADOR DINÁMICO DE EMPLEABILIDAD NACIONAL (2021-2026)
 Modelado y Simulación - Ingeniería de Sistemas
 Docente: Andrés Perpiñán Reyes
-=============================================================================
+================================================================================
 
 Arquitectura modular refactorizada siguiendo buenas prácticas de software.
 """
+
+# Importar pandas primero para evitar problemas de importación circular con plotly
+import pandas
 
 from dash import Dash
 from core.config import APP_HOST, APP_PORT, APP_DEBUG, APP_TITLE

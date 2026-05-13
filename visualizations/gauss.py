@@ -30,9 +30,15 @@ from services.outlier_service import es_outlier
 def figura_gauss(ciudad: str, año: int) -> go.Figure:
     idx = AÑOS.index(año)
     mu_ciudad = EMPLEO_BASE[ciudad][idx]
+    if mu_ciudad is None:
+        fig = go.Figure()
+        fig.add_annotation(text=f"No hay datos disponibles para {ciudad} en {año}", 
+                          showarrow=False, font=dict(size=14, color=TEXT_MUTED))
+        return fig
     sigma_ciudad = SIGMA_BASE[ciudad]
     mu_nac, _ = calcular_media_nacional(año)
-    sigma_nac = np.std([EMPLEO_BASE[c][idx] for c in CIUDADES])
+    valores_año = [EMPLEO_BASE[c][idx] for c in CIUDADES if EMPLEO_BASE[c][idx] is not None]
+    sigma_nac = np.std(valores_año) if valores_año else 1.0
 
     x = np.linspace(25, 80, 500)
     y_ciudad = stats.norm.pdf(x, mu_ciudad, sigma_ciudad)

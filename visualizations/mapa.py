@@ -28,6 +28,8 @@ def figura_mapa(año: int, ciudad_sel: Optional[str] = None, region_filtro: Opti
     lats, lons, nombres, tasas, regiones, textos = [], [], [], [], [], []
     for ciudad, info in ciudades_filtradas.items():
         tasa = EMPLEO_BASE[ciudad][idx]
+        if tasa is None:
+            continue
         sigma = SIGMA_BASE[ciudad]
         outlier = es_outlier(ciudad, año)
         lats.append(info["lat"])

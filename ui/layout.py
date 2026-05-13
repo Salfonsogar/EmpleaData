@@ -33,108 +33,99 @@ def create_layout() -> html.Div:
                 "padding": "0 24px",
             }, children=[
 
-                # ── TOP BAR (header + controles integrados) ─────────────
+                # ── TOP BAR ───────────────────────────────────────────
                 create_navbar(),
 
-                # ── FILA 1: MAPA (60%) + KPIs (40%) ────────────────────
-                html.Div(style={
-                    "marginTop": "20px",
-                    "display": "flex", "gap": "20px",
-                    "alignItems": "stretch",
-                }, children=[
+                # ── TABS ───────────────────────────────────────────────
+                dcc.Tabs(
+                    id="main-tabs",
+                    value="overview",
+                    children=[
+                        dcc.Tab(label="📊 Overview", value="overview"),
+                        dcc.Tab(label="🗺️ Regional", value="regional"),
+                        dcc.Tab(label="📈 Nacional", value="nacional"),
+                    ],
+                    style={"marginTop": "20px"},
+                ),
 
-                    _section_container(
-                        dcc.Graph(id="mapa-colombia",
-                                  config={"displayModeBar": False}),
-                        style_extra={"flex": "3"},
-                    ),
-
-                    _section_container(
-                        html.Div(id="kpi-cards", style={"height": "100%"}),
-                        style_extra={"flex": "2", "height": "440px"},
-                    ),
+                # ── TAB: OVERVIEW (Mapa + KPIs + Ranking) ─────────────
+                html.Div(id="tab-overview", children=[
+                    html.Div(style={
+                        "marginTop": "20px",
+                        "display": "flex", "gap": "20px",
+                        "alignItems": "stretch",
+                    }, children=[
+                        _section_container(
+                            dcc.Graph(id="mapa-colombia", config={"displayModeBar": False}),
+                            style_extra={"flex": "3"},
+                        ),
+                        _section_container(
+                            html.Div(id="kpi-cards", style={"height": "100%"}),
+                            style_extra={"flex": "2", "height": "440px"},
+                        ),
+                    ]),
+                    html.Div(style={"marginTop": "20px"}, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-ranking", config={"displayModeBar": False}),
+                        ),
+                        html.Span("[Top 5]", id="toggle-ranking", n_clicks=0,
+                            style={"color": TEXT_MUTED, "fontSize": "10px", "cursor": "pointer",
+                                   "textAlign": "right", "padding": "4px 4px 0", "display": "block"}),
+                    ]),
                 ]),
 
-                # ── FILA 2: RANKING (full width, standalone) ─────────────
-                html.Div(style={
-                    "marginTop": "20px",
-                }, children=[
-                    _section_container(
-                        dcc.Graph(id="grafica-ranking",
-                                  config={"displayModeBar": False}),
-                    ),
-                    html.Span(
-                        "[Top 5]",
-                        id="toggle-ranking",
-                        n_clicks=0,
-                        style={
-                            "color": TEXT_MUTED,
-                            "fontSize": "10px",
-                            "cursor": "pointer",
-                            "textAlign": "right",
-                            "padding": "4px 4px 0",
-                            "userSelect": "none",
-                            "display": "block",
-                        },
-                    ),
+                # ── TAB: REGIONAL (Gauss + Tendencia + Sectores + Género) ─
+                html.Div(id="tab-regional", style={"display": "none"}, children=[
+                    # FILA 1: Gauss + Tendencia
+                    html.Div(style={
+                        "marginTop": "20px",
+                        "display": "flex", "gap": "16px",
+                        "alignItems": "stretch",
+                    }, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-gauss", config={"displayModeBar": False}),
+                            style_extra={"flex": "2"},
+                        ),
+                        _section_container(
+                            dcc.Graph(id="grafica-tendencia", config={"displayModeBar": False}),
+                            style_extra={"flex": "1"},
+                        ),
+                    ]),
+                    # FILA 2: Sectores (torta)
+                    html.Div(style={
+                        "marginTop": "20px",
+                    }, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-sectores", config={"displayModeBar": False}),
+                        ),
+                    ]),
+                    # FILA 3: Género (participación laboral femenina)
+                    html.Div(style={
+                        "marginTop": "20px",
+                    }, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-genero", config={"displayModeBar": False}),
+                        ),
+                    ]),
                 ]),
 
-                # ── FILA 3: GAUSS (2/3) + TREND (1/3) ─────────────────
-                html.Div(style={
-                    "marginTop": "20px",
-                    "display": "flex", "gap": "16px",
-                    "alignItems": "stretch",
-                }, children=[
-
-                    _section_container(
-                        dcc.Graph(id="grafica-gauss",
-                                  config={"displayModeBar": False}),
-                        style_extra={"flex": "2"},
-                    ),
-
-                    _section_container(
-                        dcc.Graph(id="grafica-tendencia",
-                                  config={"displayModeBar": False}),
-                        style_extra={"flex": "1"},
-                    ),
-                ]),
-
-                # ── FILA 4: CORRELACIÓN FRONTERIZA ──────────────────────
-                html.Div(style={
-                    "marginTop": "20px",
-                }, children=[
-                    _section_container(
-                        dcc.Graph(id="grafica-correlacion",
-                                  config={"displayModeBar": False}),
-                    ),
-                ]),
-
-                # ── FILA 5: SECTORES + GÉNERO ─────────────────────
-                html.Div(style={
-                    "marginTop": "20px",
-                    "display": "flex", "gap": "16px",
-                    "alignItems": "stretch",
-                }, children=[
-                    _section_container(
-                        dcc.Graph(id="grafica-sectores",
-                                  config={"displayModeBar": False}),
-                        style_extra={"flex": "1"},
-                    ),
-                    _section_container(
-                        dcc.Graph(id="grafica-genero",
-                                  config={"displayModeBar": False}),
-                        style_extra={"flex": "1"},
-                    ),
-                ]),
-
-                # ── FILA 6: DANE SECTORES NACIONALES (2 gráficos) ───────
-                html.Div(style={
-                    "marginTop": "20px",
-                }, children=[
-                    _section_container(
-                        dcc.Graph(id="grafica-dane-sectores",
-                                  config={"displayModeBar": False}),
-                    ),
+                # ── TAB: NACIONAL (Correlación + Dane + Heatmap) ────────
+                html.Div(id="tab-nacional", style={"display": "none"}, children=[
+                    html.Div(style={"marginTop": "20px"}, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-correlacion", config={"displayModeBar": False}),
+                        ),
+                    ]),
+                    html.Div(style={"marginTop": "20px"}, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-dane-sectores", config={"displayModeBar": False}),
+                        ),
+                    ]),
+                    html.Div(style={"marginTop": "20px"}, children=[
+                        _section_container(
+                            dcc.Graph(id="grafica-heatmap", config={"displayModeBar": False}),
+                        ),
+                    ]),
                 ]),
 
                 # ── FOOTER ─────────────────────────────────────────────
@@ -146,7 +137,7 @@ def create_layout() -> html.Div:
                 }, children=[
                     html.Span(
                         "Modelado y Simulación · Docente: Andrés Perpiñán Reyes · "
-                        "Fuentes: DANE-GEIH / Datos Abiertos Colombia / SISRPO-MinSalud",
+                        "Fuentes: DANE-GEIH / Datos Abiertos Colombia",
                         style={"color": TEXT_MUTED, "fontSize": "10px"},
                     ),
                 ]),

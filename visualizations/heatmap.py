@@ -7,6 +7,7 @@ import numpy as np
 
 from core.constants import AÑOS
 from core.theme import (
+    COLOR_PRIMARY,
     PAPER_BACKGROUND,
     TEXT_COLOR,
     TEXT_MUTED,
@@ -32,7 +33,10 @@ def figura_heatmap(ciudad_seleccionada: str) -> go.Figure:
         for j, año in enumerate(AÑOS):
             val = matrix[i][j]
             marker = "★" if ciudad == ciudad_seleccionada else ""
-            row_text.append(f"{marker}{val:.1f}%")
+            if val is None:
+                row_text.append(f"{marker}—")
+            else:
+                row_text.append(f"{marker}{val:.1f}%")
         texto_matrix.append(row_text)
 
     colorscale = [
@@ -54,9 +58,7 @@ def figura_heatmap(ciudad_seleccionada: str) -> go.Figure:
             colorscale=colorscale,
             showscale=True,
             colorbar=dict(
-                title="Tasa %",
-                titleside="right",
-                titlefont=dict(color=TEXT_MUTED, size=10),
+                title=dict(text="Tasa %", side="right", font=dict(color=TEXT_MUTED, size=10)),
                 tickfont=dict(color=TEXT_MUTED, size=9),
             ),
             hovertemplate="Ciudad: %{y}<br>Año: %{x}<br>Tasa: %{z:.1f}%<extra></extra>",

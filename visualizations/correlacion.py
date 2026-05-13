@@ -74,6 +74,8 @@ def figura_correlacion_frontera(año: int = 2026) -> go.Figure:
     triangulo = ["Bogotá", "Medellín", "Cali"]
     for ciudad in FRONTERIZAS[:3]:
         mu = EMPLEO_BASE[ciudad][año_idx]
+        if mu is None:
+            continue
         sig = SIGMA_BASE[ciudad]
         y = stats.norm.pdf(x, mu, sig)
         fig.add_trace(
