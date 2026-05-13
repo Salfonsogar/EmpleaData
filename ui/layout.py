@@ -99,38 +99,41 @@ def create_layout() -> html.Div:
                     ),
                 ]),
 
-                # ── FILA 4: CORRELACIÓN FRONTERIZA (colapsable) ─────────
+                # ── FILA 4: CORRELACIÓN FRONTERIZA ──────────────────────
                 html.Div(style={
                     "marginTop": "20px",
                 }, children=[
-
-                    html.Div(
-                        "▶ Ver an\u00e1lisis de correlaci\u00f3n fronteriza (+0.5)",
-                        id="toggle-correlacion",
-                        n_clicks=0,
-                        style={
-                            "color": COLOR_PRIMARY,
-                            "fontSize": "11px",
-                            "letterSpacing": "0.5px",
-                            "cursor": "pointer",
-                            "userSelect": "none",
-                            "padding": "8px 12px",
-                            "backgroundColor": CARD_BACKGROUND,
-                            "borderRadius": "6px",
-                            "border": f"1px solid {BORDER_COLOR}",
-                            "display": "inline-block",
-                        },
+                    _section_container(
+                        dcc.Graph(id="grafica-correlacion",
+                                  config={"displayModeBar": False}),
                     ),
+                ]),
 
-                    html.Div(
-                        id="contenido-correlacion",
-                        style={"display": "none", "marginTop": "12px"},
-                        children=[
-                            _section_container(
-                                dcc.Graph(id="grafica-correlacion",
-                                          config={"displayModeBar": False}),
-                            ),
-                        ],
+                # ── FILA 5: SECTORES + GÉNERO ─────────────────────
+                html.Div(style={
+                    "marginTop": "20px",
+                    "display": "flex", "gap": "16px",
+                    "alignItems": "stretch",
+                }, children=[
+                    _section_container(
+                        dcc.Graph(id="grafica-sectores",
+                                  config={"displayModeBar": False}),
+                        style_extra={"flex": "1"},
+                    ),
+                    _section_container(
+                        dcc.Graph(id="grafica-genero",
+                                  config={"displayModeBar": False}),
+                        style_extra={"flex": "1"},
+                    ),
+                ]),
+
+                # ── FILA 6: DANE SECTORES NACIONALES (2 gráficos) ───────
+                html.Div(style={
+                    "marginTop": "20px",
+                }, children=[
+                    _section_container(
+                        dcc.Graph(id="grafica-dane-sectores",
+                                  config={"displayModeBar": False}),
                     ),
                 ]),
 

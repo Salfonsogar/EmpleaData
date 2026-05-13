@@ -45,6 +45,10 @@ def _find_sheet(wb) -> str:
     candidates = [s for s in wb.sheetnames if "areas trim movil" in s.lower()]
     if candidates:
         return candidates[0]
+    # NEW FORMAT: "23 ciudades" or "13 ciudades A.M."
+    for name in ["23 ciudades", "13 ciudades A.M.", "13 ciudades"]:
+        if name in wb.sheetnames:
+            return name
     raise ValueError("No se encontró una hoja con datos por ciudad")
 
 
@@ -53,30 +57,45 @@ def _find_calendar_year_columns(ws) -> Dict[int, int]:
     latest_2026_col = None
     latest_2026_order = -1
 
-    for row in ws.iter_rows(min_row=1, max_row=20, values_only=False):
-        for c in row:
-            if c.value and isinstance(c.value, str):
-                v = c.value.strip()
-                m = re.match(r'Ene\s*-\s*Dic\s+(\d{2,4})', v)
+    # NEW FORMAT: Check if row 2 has "Ene - Dic YYYY" pattern (columns B-G)
+    row2 = list(ws.iter_rows(min_row=3, max_row=3, values_only=True))
+    if row2:
+        for col_idx, val in enumerate(row2[0], start=1):
+            if val and isinstance(val, str):
+                m = re.match(r'Ene\s*-\s*Dic\s+(\d{2,4})', val.strip())
                 if m:
                     year = int(m.group(1))
                     if year < 100:
                         year += 2000
                     if year in AÑOS:
-                        headers[year] = c.column
+                        headers[year] = col_idx
 
-                if v and v.endswith("26") and any(mes in v for mes in ["Ene", "Feb", "Mar", "Abr"]):
-                    months = {"Ene": 1, "Feb": 2, "Mar": 3, "Abr": 4, "May": 5, "Jun": 6,
-                              "Jul": 7, "Ago": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dic": 12}
-                    for prefix, order in months.items():
-                        if v.startswith(prefix):
-                            if order > latest_2026_order:
-                                latest_2026_order = order
-                                latest_2026_col = c.column
-                            break
+    # OLD FORMAT: search through multiple rows
+    if not headers:
+        for row in ws.iter_rows(min_row=1, max_row=20, values_only=False):
+            for c in row:
+                if c.value and isinstance(c.value, str):
+                    v = c.value.strip()
+                    m = re.match(r'Ene\s*-\s*Dic\s+(\d{2,4})', v)
+                    if m:
+                        year = int(m.group(1))
+                        if year < 100:
+                            year += 2000
+                        if year in AÑOS:
+                            headers[year] = c.column
 
-    if 2026 not in headers and latest_2026_col is not None:
-        headers[2026] = latest_2026_col
+                    if v and v.endswith("26") and any(mes in v for mes in ["Ene", "Feb", "Mar", "Abr"]):
+                        months = {"Ene": 1, "Feb": 2, "Mar": 3, "Abr": 4, "May": 5, "Jun": 6,
+                                  "Jul": 7, "Ago": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dic": 12}
+                        for prefix, order in months.items():
+                            if v.startswith(prefix):
+                                if order > latest_2026_order:
+                                    latest_2026_order = order
+                                    latest_2026_col = c.column
+                                break
+
+        if 2026 not in headers and latest_2026_col is not None:
+            headers[2026] = latest_2026_col
 
     return headers
 
@@ -93,12 +112,21 @@ def _find_to_row(ws, start_row: int, max_look: int = 8) -> Optional[int]:
 
 def _find_city_blocks(ws) -> List[Tuple[str, int]]:
     blocks = []
-    for row in ws.iter_rows(min_row=1, max_row=ws.max_row or 1000, min_col=1, max_col=1, values_only=False):
+    # NEW FORMAT: Data starts at row 5 (city in column A, values in B-G)
+    for row in ws.iter_rows(min_row=5, max_row=ws.max_row or 1000, min_col=1, max_col=1, values_only=False):
         c = row[0]
         if c.value and isinstance(c.value, str):
             name = c.value.strip()
             if name in CIUDAD_MAP:
                 blocks.append((name, c.row))
+    # OLD FORMAT fallback: search from row 1
+    if not blocks:
+        for row in ws.iter_rows(min_row=1, max_row=ws.max_row or 1000, min_col=1, max_col=1, values_only=False):
+            c = row[0]
+            if c.value and isinstance(c.value, str):
+                name = c.value.strip()
+                if name in CIUDAD_MAP:
+                    blocks.append((name, c.row))
     return blocks
 
 
@@ -117,27 +145,52 @@ def extract_tasa_ocupacion(filepath: str) -> Dict[str, List[float]]:
         wb.close()
         raise ValueError(f"No se encontraron ciudades conocidas en '{sheet_name}'")
 
+    # NEW FORMAT: values are in same row as city name (columns B-G = 2-7)
+    # Check if first block has data in same row
     result = {}
+    first_city, first_row = blocks[0]
+    first_row_values = [ws.cell(row=first_row, column=c).value for c in range(2, 8)]
+    new_format = any(v is not None for v in first_row_values)
+
     for dane_name, city_row in blocks:
         proj_name = CIUDAD_MAP[dane_name]
-        to_row = _find_to_row(ws, city_row + 1)
-        if to_row is None:
-            continue
 
-        values = []
-        for year in AÑOS:
-            col = year_cols.get(year)
-            if col is None:
-                values.append(None)
-            else:
-                cell_val = ws.cell(row=to_row, column=col).value
-                if cell_val is not None:
-                    try:
-                        values.append(round(float(cell_val), 1))
-                    except (ValueError, TypeError):
-                        values.append(None)
-                else:
+        if new_format:
+            # NEW FORMAT: values in same row
+            values = []
+            for year in AÑOS:
+                col = year_cols.get(year)
+                if col is None:
                     values.append(None)
+                else:
+                    cell_val = ws.cell(row=city_row, column=col).value
+                    if cell_val is not None:
+                        try:
+                            values.append(round(float(cell_val), 1))
+                        except (ValueError, TypeError):
+                            values.append(None)
+                    else:
+                        values.append(None)
+        else:
+            # OLD FORMAT: values in TO row below city
+            to_row = _find_to_row(ws, city_row + 1)
+            if to_row is None:
+                continue
+
+            values = []
+            for year in AÑOS:
+                col = year_cols.get(year)
+                if col is None:
+                    values.append(None)
+                else:
+                    cell_val = ws.cell(row=to_row, column=col).value
+                    if cell_val is not None:
+                        try:
+                            values.append(round(float(cell_val), 1))
+                        except (ValueError, TypeError):
+                            values.append(None)
+                    else:
+                        values.append(None)
         result[proj_name] = values
 
     wb.close()

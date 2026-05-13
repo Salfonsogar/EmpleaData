@@ -5,6 +5,10 @@ from ui.components.cards import create_kpi_cards
 from visualizations.gauss import figura_gauss
 from visualizations.tendencias import figura_tendencia
 from visualizations.ranking import figura_ranking
+from visualizations.sectores import figura_sectores
+from visualizations.genero import figura_genero
+from visualizations.heatmap import figura_heatmap
+from visualizations.dane_sectores import figura_dane_sectores
 
 
 def register_stats_callbacks(app):
@@ -54,3 +58,32 @@ def register_stats_callbacks(app):
         if n_clicks and n_clicks % 2 == 1:
             return figura_ranking(año, top_n=5), "[Ver todas]"
         return figura_ranking(año), "[Top 5]"
+
+    @app.callback(
+        Output("grafica-sectores", "figure"),
+        [Input("slider-año", "value"),
+         Input("dropdown-ciudad", "value")]
+    )
+    def actualizar_sectores(año, ciudad):
+        return figura_sectores(ciudad, año)
+
+    @app.callback(
+        Output("grafica-genero", "figure"),
+        Input("dropdown-ciudad", "value")
+    )
+    def actualizar_genero(ciudad):
+        return figura_genero(ciudad)
+
+    @app.callback(
+        Output("grafica-heatmap", "figure"),
+        Input("dropdown-ciudad", "value")
+    )
+    def actualizar_heatmap(ciudad):
+        return figura_heatmap(ciudad)
+
+    @app.callback(
+        Output("grafica-dane-sectores", "figure"),
+        Input("slider-año", "value")
+    )
+    def actualizar_dane_sectores(año):
+        return figura_dane_sectores(año)

@@ -7,6 +7,7 @@ import numpy as np
 from typing import Dict, List
 
 from data import CIUDADES, EMPLEO_BASE, SIGMA_BASE, SECTOR_DOMINANTE, is_using_real_data
+from data.sectores import EMPLEADOS_POR_SECTOR, get_sector_dominante_real
 from core.constants import AÑOS
 
 
@@ -51,11 +52,12 @@ def calcular_estadisticas(ciudad: str, año: int) -> Dict:
     sigma = SIGMA_BASE[ciudad]
     
     muestra = _generar_muestra(ciudad, año)
+    sector = obtener_sector_dominante(ciudad, año)
     
     return {
         "media": round(float(np.mean(muestra)), 2),
         "mediana": round(float(np.median(muestra)), 2),
-        "moda": SECTOR_DOMINANTE[ciudad],
+        "moda": sector,
         "std": round(float(np.std(muestra)), 2),
         "mu_ref": mu,
         "sigma_ref": sigma,
@@ -86,3 +88,11 @@ def calcular_sigma_real(ciudad: str) -> float:
         diffs = [abs(vals[i] - vals[i-1]) for i in range(1, len(vals))]
         return round(np.std(diffs) * 1.2, 2) if diffs else SIGMA_BASE.get(ciudad, 2.0)
     return SIGMA_BASE.get(ciudad, 2.0)
+
+
+def obtener_sector_dominante(ciudad: str, año: int) -> str:
+    """
+    Calcula el sector dominante para una ciudad en un año específico
+    usando datos reales de GEIH (get_sector_dominante_real) o fallback estático.
+    """
+    return get_sector_dominante_real(ciudad, año)

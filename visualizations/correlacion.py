@@ -47,11 +47,8 @@ def figura_correlacion_frontera(año: int = 2026) -> go.Figure:
             go.Scatter(
                 x=[MIGRACION_FRONTERIZA[ciudad][año_idx]],
                 y=[SIGMA_BASE[ciudad]],
-                mode="markers+text",
+                mode="markers",
                 marker=dict(size=14, color=colores_front[i]),
-                text=[ciudad],
-                textposition="top center",
-                textfont=dict(color=TEXT_COLOR, size=10),
                 name=ciudad,
                 hovertemplate=f"{ciudad}<br>Migración: %{{x}}k<br>σ: %{{y}}<extra></extra>",
             ),
