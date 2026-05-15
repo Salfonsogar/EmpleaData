@@ -42,8 +42,8 @@ def create_layout() -> html.Div:
                     value="overview",
                     children=[
                         dcc.Tab(label="📊 Overview", value="overview"),
-                        dcc.Tab(label="🗺️ Regional", value="regional"),
-                        dcc.Tab(label="📈 Nacional", value="nacional"),
+                        dcc.Tab(label="🗺️ Perfiles y localidad", value="regional"),
+                        dcc.Tab(label="📈 Correlaciones y macro", value="nacional"),
                     ],
                     style={"marginTop": "20px"},
                 ),
